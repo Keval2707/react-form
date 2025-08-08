@@ -74,11 +74,14 @@ export const getAge = (birth, death) => {
   return `${years} years, ${months} months, ${days} days`;
 };
 
+const STORAGE_KEY = import.meta.env.VITE_LOCALE_STORAGE_KEY;
+
 export const updateUserList = (list) => {
-  localStorage.setItem("rhf-users", JSON.stringify(list));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 };
 
-export const getUserList = (key) => {
+export const getUserList = () => {
+  const key = STORAGE_KEY;
   if (!key) return;
 
   const userList = localStorage.getItem(key);
