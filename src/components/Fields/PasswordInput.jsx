@@ -17,16 +17,16 @@ export const PasswordInput = ({ name, control, label }) => {
 
         <div className="flex gap-3">
           <input
+            id={name}
             {...field}
             type={show ? "text" : "password"}
-            id={name}
             placeholder={`Enter your ${name}`}
           />
 
           <button
             type="button"
-            onClick={() => setShow((s) => !s)}
             className="cursor-pointer"
+            onClick={() => setShow((s) => !s)}
           >
             {show ? <VscEye /> : <VscEyeClosed />}
           </button>

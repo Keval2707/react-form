@@ -65,11 +65,11 @@ export const getAge = (birth, death) => {
     months += 12;
   }
 
-  if (days === 0) return `${years} years, ${months} months,`;
-
   if (months === 0) return `${years} years, ${days} days`;
-
+  
   if (years === 0) return `${months} months, ${days} days`;
+  
+  if (days === 0) return `${years} years, ${months} months,`;
 
   return `${years} years, ${months} months, ${days} days`;
 };
@@ -98,10 +98,10 @@ export const defaultValues = {
   dod: "",
   name: "",
   email: "",
-  gender: "Male",
   hobbies: [],
   password: "",
   active: true,
+  gender: "Male",
   programming: "HTML",
   confirmpassword: "",
 };
