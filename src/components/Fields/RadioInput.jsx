@@ -1,15 +1,15 @@
 import { useController } from "react-hook-form";
 
 export const RadioInput = ({
+  control,
   arrayName,
   type = "radio",
-  control,
   name = "gender",
   ...rest
 }) => {
   const {
-    field: { value, onChange },
     fieldState: { error },
+    field: { value, onChange },
   } = useController({ name, control });
 
   return (

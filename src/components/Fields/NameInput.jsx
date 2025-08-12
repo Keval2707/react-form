@@ -11,7 +11,7 @@ export const NameInput = ({ name, control, label, type = "text", ...rest }) => {
       <div className="form-group">
         <label htmlFor={name}>{label}</label>
 
-        <input id={name} type={type}  {...field} {...rest} autoComplete="off" />
+        <input id={name} type={type} {...field} {...rest} autoComplete="off" />
 
         {error && <p className="error">{error.message}</p>}
       </div>

@@ -16,9 +16,9 @@ export const RHFUserForm = ({
   setEditingUser,
 }) => {
   const { watch, reset, control, setValue, handleSubmit } = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: editingUser,
     mode: "all",
+    defaultValues: editingUser,
+    resolver: zodResolver(schema),
   });
 
   const values = watch();
@@ -49,8 +49,8 @@ export const RHFUserForm = ({
   };
 
   const handleCancel = () => {
-    setEditingUser(defaultValues);
     reset();
+    setEditingUser(defaultValues);
   };
 
   return (

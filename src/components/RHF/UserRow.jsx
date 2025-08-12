@@ -1,6 +1,6 @@
+import { getAge } from "./components";
 import { FiEdit3 } from "react-icons/fi";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { getAge } from "./components";
 
 export const UserRow = ({
   user,
@@ -10,19 +10,8 @@ export const UserRow = ({
   isEditing,
   onToggleActive,
 }) => {
-  const {
-    id,
-    dob,
-    dod,
-    name,
-    email,
-    active,
-    gender,
-    hobbies,
-    programming,
-    // password,
-    // confirmpassword,
-  } = user;
+  const { id, dob, dod, name, email, active, gender, hobbies, programming } =
+    user;
 
   return (
     <tr
@@ -51,6 +40,7 @@ export const UserRow = ({
         >
           <FiEdit3 />
         </button>
+
         <button
           disabled={isEditing}
           onClick={() => onDelete(id)}

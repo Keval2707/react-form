@@ -55,9 +55,9 @@ export const RHFUserList = ({
   };
 
   const iconRenderer = {
+    default: <></>,
     asc: <FaArrowUp />,
     desc: <FaArrowDown />,
-    default: <></>,
   };
 
   const getSortIndicator = (columnKey) =>

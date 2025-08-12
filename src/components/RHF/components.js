@@ -18,18 +18,18 @@ export const options = ["HTML", "CSS", "JavaScript", "React", "Redux"];
 export const schema = z
   .object({
     name: z.string().trim().min(1, "Username is required"),
+    dob: z.string().min(1, "Date of birth is required"),
+    dod: z.string().optional(),
+    gender: z.string().min(1, "Gender is required"),
+    programming: z.string().min(1, "language is required"),
+    hobbies: z
+      .array(z.enum(["Coding", "Reading", "Playing", "Travelling"]))
+      .min(1, "At least one hobby is required"),
     email: z
       .string()
       .trim()
       .min(1, "Email is required")
       .email("Email format is not valid"),
-    dob: z.string().min(1, "Date of birth is required"),
-    dod: z.string().optional(),
-    gender: z.string().min(1, "Gender is required"),
-    hobbies: z
-      .array(z.enum(["Coding", "Reading", "Playing", "Travelling"]))
-      .min(1, "At least one hobby is required"),
-    programming: z.string().optional(),
     password: z
       .string()
       .trim()
@@ -51,7 +51,7 @@ export const defaultValues = {
   password: "",
   active: true,
   gender: "Male",
-  programming: "HTML",
+  programming: "",
   confirmpassword: "",
 };
 
@@ -136,11 +136,11 @@ export const getAge = (birth, death) => {
     months += 12;
   }
 
-  if (days === 0) return `${years} years, ${months} months,`;
-
   if (months === 0) return `${years} years, ${days} days`;
-
+  
   if (years === 0) return `${months} months, ${days} days`;
+  
+  if (days === 0) return `${years} years, ${months} months,`;
 
   return `${years} years, ${months} months, ${days} days`;
 };

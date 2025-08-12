@@ -8,8 +8,8 @@ export const CheckboxInput = ({
   ...rest
 }) => {
   const {
-    field: { value, onChange },
     fieldState: { error },
+    field: { value, onChange },
   } = useController({ name, control, defaultValue: [] });
 
   const handleCheckboxChange = (item) => {
@@ -29,10 +29,10 @@ export const CheckboxInput = ({
             <li key={index} className="items-center gap-2 flex mb-2">
               <input
                 type="checkbox"
+                className="cursor-pointer"
                 id={`${hobbyName}-${index}`}
                 checked={value.includes(hobbyName)}
                 onChange={() => handleCheckboxChange(hobbyName)}
-                className="cursor-pointer"
                 {...rest}
               />
 

@@ -19,8 +19,8 @@ const RHFUser = () => {
 
         <RHFUserForm
           formData={formData}
-          setFormData={setFormData}
           editingUser={editingUser}
+          setFormData={setFormData}
           setEditingUser={setEditingUser}
         />
       </div>
