@@ -6,21 +6,30 @@ export const genders = {
   Others: "others",
 };
 
+export const hobbiesList = [
+  { id: 1, name: "Coding" },
+  { id: 2, name: "Reading" },
+  { id: 3, name: "Playing" },
+  { id: 4, name: "Travelling" },
+];
+
+export const options = ["HTML", "CSS", "JavaScript", "React", "Redux"];
+
 export const schema = z
   .object({
     name: z.string().trim().min(1, "Username is required"),
+    dob: z.string().min(1, "Date of birth is required"),
+    dod: z.string().optional(),
+    gender: z.string().min(1, "Gender is required"),
+    programming: z.string().min(1, "language is required"),
+    hobbies: z
+      .array(z.enum(["Coding", "Reading", "Playing", "Travelling"]))
+      .min(1, "At least one hobby is required"),
     email: z
       .string()
       .trim()
       .min(1, "Email is required")
       .email("Email format is not valid"),
-    dob: z.string().min(1, "Date of birth is required"),
-    dod: z.string().optional(),
-    gender: z.string().min(1, "Gender is required"),
-    hobbies: z
-      .array(z.enum(["Coding", "Reading", "Playing", "Travelling"]))
-      .min(1, "At least one hobby is required"),
-    programming: z.string().min(1 , "language is required"),
     password: z
       .string()
       .trim()
@@ -33,25 +42,87 @@ export const schema = z
     path: ["confirmpassword"],
   });
 
-export const hobbiesList = [
-  { id: 1, name: "Coding" },
-  { id: 2, name: "Reading" },
-  { id: 3, name: "Playing" },
-  { id: 4, name: "Travelling" },
-];
+export const defaultValues = {
+  dob: "",
+  dod: "",
+  name: "",
+  email: "",
+  hobbies: [],
+  password: "",
+  active: true,
+  gender: "Male",
+  programming: "",
+  confirmpassword: "",
+};
 
-export const options = ["HTML", "CSS", "JavaScript", "React", "Redux"];
+export const formFields = [
+  {
+    component: "NameInput",
+    name: "name",
+    label: "Username",
+    placeholder: "Enter your username",
+  },
+
+  {
+    component: "NameInput",
+    name: "email",
+    type: "email",
+    label: "Email",
+    placeholder: "Enter your email",
+  },
+
+  {
+    component: "NameInput",
+    name: "dob",
+    type: "date",
+    label: "Date of Birth",
+    maxField: "dod",
+  },
+
+  {
+    component: "NameInput",
+    name: "dod",
+    type: "date",
+    label: "Date of Death",
+    minField: "dob",
+  },
+
+  { component: "RadioInput", name: "gender", arrayName: genders },
+
+  {
+    component: "CheckboxInput",
+    name: "hobbies",
+    label: "Hobbies",
+    arrayName: hobbiesList,
+  },
+
+  {
+    component: "DropdownInput",
+    name: "programming",
+    label: "Select your Favourite Language",
+    arrayName: options,
+  },
+
+  { component: "PasswordInput", name: "password", label: "Password" },
+
+  {
+    component: "PasswordInput",
+    name: "confirmpassword",
+    label: "Confirm Password",
+  },
+];
 
 export const getAge = (birth, death) => {
   const birthDate = new Date(birth);
   const endDate = death ? new Date(death) : new Date();
 
-  let years = endDate.getFullYear() - birthDate.getFullYear();
-  let months = endDate.getMonth() - birthDate.getMonth();
   let days = endDate.getDate() - birthDate.getDate();
+  let months = endDate.getMonth() - birthDate.getMonth();
+  let years = endDate.getFullYear() - birthDate.getFullYear();
 
   if (days < 0) {
     months -= 1;
+
     const lastDayOfPrevMonth = new Date(
       endDate.getFullYear(),
       endDate.getMonth(),
@@ -82,26 +153,10 @@ export const updateUserList = (list) => {
 
 export const getUserList = () => {
   const key = STORAGE_KEY;
-  if (!key) return;
+
+  if (!key) return [];
 
   const userList = localStorage.getItem(key);
 
-  if (userList?.length) {
-    return JSON.parse(userList);
-  }
-
-  return [];
-};
-
-export const defaultValues = {
-  dob: "",
-  dod: "",
-  name: "",
-  email: "",
-  hobbies: [],
-  password: "",
-  active: true,
-  gender: "Male",
-  programming: "HTML",
-  confirmpassword: "",
+  return userList?.length ? JSON.parse(userList) : [];
 };

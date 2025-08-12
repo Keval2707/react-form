@@ -1,8 +1,9 @@
 import { FiEdit3 } from "react-icons/fi";
+import { useState } from "react";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { useMemo, useState } from "react";
 import { getAge, updateUserList } from "./components";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa6";
+import { useSortedFilteredUsers } from "../hooks/useSortedFilteredUsers";
 
 export const RHFUserList = ({
   formData,
@@ -16,10 +17,41 @@ export const RHFUserList = ({
     direction: "default",
   });
 
+  const sortedFilteredUsers = useSortedFilteredUsers(
+    formData,
+    activeTab,
+    sortConfig
+  );
+
+  const isEditing = !!editingUser?.id;
+
   const handleDelete = (id) => {
-    const deletedUser = formData.filter((user) => user.id !== id);
-    setFormData(deletedUser);
-    updateUserList(deletedUser);
+    const updated = formData.filter((user) => user.id !== id);
+    setFormData(updated);
+    updateUserList(updated);
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      direction:
+        prev.key === key
+          ? prev.direction === "asc"
+            ? "desc"
+            : prev.direction === "desc"
+            ? "default"
+            : "asc"
+          : "asc",
+    }));
+  };
+
+  const handleUserState = (id) => {
+    const updatedList = formData.map((user) =>
+      user.id === id ? { ...user, active: !user.active } : user
+    );
+
+    setFormData(updatedList);
+    updateUserList(updatedList);
   };
 
   const iconRenderer = {
@@ -28,80 +60,10 @@ export const RHFUserList = ({
     desc: <FaArrowDown />,
   };
 
-  const handleSort = (key) => {
-    let direction = "asc";
+  const getSortIndicator = (columnKey) =>
+    sortConfig.key === columnKey ? iconRenderer[sortConfig.direction] : null;
 
-    if (sortConfig.key === key) {
-      if (sortConfig.direction === "default") {
-        direction = "asc";
-      } else if (sortConfig.direction === "asc") {
-        direction = "desc";
-      } else {
-        direction = "default";
-      }
-    } else {
-      direction = "asc";
-    }
-
-    setSortConfig({ key, direction });
-  };
-
-  const getSortIndicator = (columnKey) => {
-    if (sortConfig.key === columnKey) {
-      return iconRenderer[sortConfig.direction];
-    }
-    return null;
-  };
-
-  const handleEdit = (user) => {
-    setEditingUser(user);
-  };
-
-  const isEditing = editingUser && editingUser.id;
-
-  const currentUserList = useMemo(() => {
-    let filteredData;
-    if (activeTab === "ActiveUsers") {
-      filteredData = formData.filter((user) => user.active !== false);
-    } else if (activeTab === "InactiveUsers") {
-      filteredData = formData.filter((user) => user.active === false);
-    } else {
-      filteredData = [...formData];
-    }
-
-    if (sortConfig.direction === "default" || !sortConfig.key) {
-      return filteredData;
-    }
-
-    return [...filteredData].sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
-
-      if (Array.isArray(aValue)) {
-        aValue = aValue.join(", ");
-      }
-      if (Array.isArray(bValue)) {
-        bValue = bValue.join(", ");
-      }
-      aValue = String(aValue || "");
-      bValue = String(bValue || "");
-
-      if (sortConfig.key === "id") {
-        const numA = parseInt(aValue) || 0;
-        const numB = parseInt(bValue) || 0;
-        return sortConfig.direction === "asc" ? numA - numB : numB - numA;
-      }
-
-      const comparison = aValue.localeCompare(bValue, undefined, {
-        numeric: true,
-        sensitivity: "base",
-      });
-
-      return sortConfig.direction === "asc" ? comparison : -comparison;
-    });
-  }, [activeTab, formData, sortConfig.key, sortConfig.direction]);
-
-  if (formData.length === 0) {
+  if (!formData.length) {
     return (
       <div className="text-center py-8 text-gray-500">
         No users found. Create your first user above!
@@ -109,173 +71,81 @@ export const RHFUserList = ({
     );
   }
 
-  const handleUserState = (id) => {
-    const updatedList = formData.map((user) => {
-      if (user.id === id) {
-        return { ...user, active: !user.active };
-      }
-      return user;
-    });
-    setFormData(updatedList);
-    updateUserList(updatedList);
-  };
-
   return (
-    <>
-      <table>
-        <thead>
-          <tr>
-            <th onClick={() => handleSort("id")} style={{ cursor: "pointer" }}>
-              <span className="flex">id {getSortIndicator("id")}</span>
-            </th>
-
+    <table>
+      <thead>
+        <tr>
+          {["id", "name", "email"].map((col) => (
             <th
-              onClick={() => handleSort("name")}
+              key={col}
+              onClick={() => handleSort(col)}
               style={{ cursor: "pointer" }}
             >
-              <span className="flex">Username {getSortIndicator("name")}</span>
+              <span className="flex capitalize">
+                {col} {getSortIndicator(col)}
+              </span>
             </th>
+          ))}
 
-            <th
-              onClick={() => handleSort("email")}
-              style={{ cursor: "pointer" }}
-            >
-              <span className="flex">Email {getSortIndicator("email")}</span>
-            </th>
+          <th>Gender</th>
+          <th>Date of Birth</th>
+          <th>Date of Death</th>
+          <th>Age</th>
+          <th>Hobbies</th>
+          <th>Programming Language</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
 
-            <th>Gender</th>
-            <th>Date of Birth</th>
-            <th>Date of Death</th>
-            <th>Age</th>
-            <th>Hobbies</th>
-            <th>Programming Language</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+      <tbody>
+        {sortedFilteredUsers.map((user) => (
+          <tr
+            key={user.id}
+            className={
+              !user.active && activeTab !== "InactiveUsers"
+                ? "line-through"
+                : ""
+            }
+          >
+            <td>{user.id}</td>
+            <td onClick={() => handleUserState(user.id)}>{user.name}</td>
+            <td>{user.email}</td>
+            <td>{user.gender}</td>
+            <td>{user.dob}</td>
+            <td>{user.dod || "-----"}</td>
+            <td>{getAge(user.dob, user.dod)}</td>
+            <td>
+              {Array.isArray(user.hobbies)
+                ? user.hobbies.join(", ")
+                : user.hobbies}
+            </td>
 
-        <tbody>
-          {currentUserList.map(
-            ({
-              id,
-              dob,
-              dod,
-              name,
-              email,
-              active,
-              gender,
-              hobbies,
-              password,
-              programming,
-              confirmpassword,
-            }) => (
-              <tr
-                key={id}
-                className={`${
-                  !active && activeTab !== "InactiveUsers" ? "line-through" : ""
+            <td>{user.programming || "-----"}</td>
+
+            <td>
+              <button
+                disabled={isEditing}
+                onClick={() => setEditingUser(user)}
+                className={`p-1 text-blue-600 hover:text-blue-800 ${
+                  isEditing ? "cursor-not-allowed" : "cursor-pointer"
                 }`}
               >
-                <td>{id}</td>
+                <FiEdit3 />
+              </button>
 
-                <td>
-                  <div
-                    className="flex justify-between cursor-pointer"
-                    onClick={() => handleUserState(id)}
-                  >
-                    <span>{name}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>{email}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>{gender}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>{dob}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-center">
-                    <span>{dod === "" ? "-----" : dod}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>{getAge(dob, dod)}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>
-                      {Array.isArray(hobbies) ? hobbies.join(", ") : hobbies}
-                    </span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex justify-between">
-                    <span>{programming || "-----"}</span>
-                  </div>
-                </td>
-
-                <td>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        handleEdit({
-                          id,
-                          dob,
-                          dod,
-                          name,
-                          email,
-                          gender,
-                          hobbies,
-                          password,
-                          programming,
-                          confirmpassword,
-                        })
-                      }
-                      disabled={isEditing}
-                      className={`p-1 text-blue-600 hover:text-blue-800 ${
-                        isEditing
-                          ? "cursor-not-allowed text-blue-800"
-                          : "cursor-pointer"
-                      }`}
-                      title="Edit user"
-                    >
-                      <FiEdit3 />
-                    </button>
-
-                    <button
-                      disabled={isEditing}
-                      onClick={() => handleDelete(id)}
-                      className={`p-1 text-red-600 hover:text-red-800 ${
-                        isEditing
-                          ? "cursor-not-allowed text-red-800"
-                          : "cursor-pointer"
-                      }`}
-                      title="Delete user"
-                    >
-                      <RiDeleteBin6Fill />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            )
-          )}
-        </tbody>
-      </table>
-    </>
+              <button
+                disabled={isEditing}
+                onClick={() => handleDelete(user.id)}
+                className={`p-1 text-red-600 hover:text-red-800 ${
+                  isEditing ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+              >
+                <RiDeleteBin6Fill />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 };
