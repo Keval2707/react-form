@@ -68,20 +68,22 @@ export const RHFUserForm = ({
         );
       })}
 
-      <Fields.ButtonInput
-        onClick={handleSubmit(onSubmit)}
-        label={isEditing ? "Update" : "Submit"}
-        className="btn btn-primary flex justify-center gap-2 items-center"
-      />
-
-      {isEditing && (
+      <div className="flex justify-center gap-4">
         <Fields.ButtonInput
-          label="Cancel"
-          type="button"
-          onClick={handleCancel}
+          onClick={handleSubmit(onSubmit)}
+          label={isEditing ? "Update" : "Submit"}
           className="btn btn-primary flex justify-center gap-2 items-center"
         />
-      )}
+
+        {isEditing && (
+          <Fields.ButtonInput
+            label="Cancel"
+            type="button"
+            onClick={handleCancel}
+            className="btn btn-primary flex justify-center gap-2 items-center"
+          />
+        )}
+      </div>
     </>
   );
 };
