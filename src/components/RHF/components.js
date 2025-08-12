@@ -20,7 +20,7 @@ export const schema = z
     hobbies: z
       .array(z.enum(["Coding", "Reading", "Playing", "Travelling"]))
       .min(1, "At least one hobby is required"),
-    programming: z.string().optional(),
+    programming: z.string().min(1 , "language is required"),
     password: z
       .string()
       .trim()
