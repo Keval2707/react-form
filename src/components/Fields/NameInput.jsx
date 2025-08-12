@@ -1,6 +1,6 @@
 import { useController } from "react-hook-form";
 
-export const TextInput = ({ name, control, label, type = "text", ...rest }) => {
+export const NameInput = ({ name, control, label, type = "text", ...rest }) => {
   const {
     field,
     fieldState: { error },

@@ -1,17 +1,10 @@
+import * as Fields from "../Fields";
 import { useForm } from "react-hook-form";
 import { useEffect } from "react";
-import { TextInput } from "../Fields/NameInput";
-import { RadioInput } from "../Fields/RadioInput";
 import { zodResolver } from "@hookform/resolvers/zod/src/zod";
-import { ButtonInput } from "../Fields/ButtonInput";
-import { PasswordInput } from "../Fields/PasswordInput";
-import { DropdownInput } from "../Fields/DropdownInput";
-import { CheckboxInput } from "../Fields/CheckboxInput";
 import {
   schema,
-  options,
-  genders,
-  hobbiesList,
+  formFields,
   defaultValues,
   updateUserList,
 } from "./components";
@@ -28,9 +21,8 @@ export const RHFUserForm = ({
     mode: "all",
   });
 
-  const dod = watch("dod");
-  const dob = watch("dob");
-  const isEditing = editingUser && editingUser.id;
+  const values = watch();
+  const isEditing = !!editingUser?.id;
 
   useEffect(() => {
     if (editingUser) {
@@ -41,23 +33,18 @@ export const RHFUserForm = ({
   }, [editingUser, setValue]);
 
   const onSubmit = (data) => {
-    if (isEditing) {
-      const updatedUsers = formData.map((user) =>
-        user.id === editingUser.id ? { ...data, id: editingUser.id } : user
-      );
-      setFormData(updatedUsers);
-      updateUserList(updatedUsers);
-      setEditingUser(defaultValues);
-    } else {
-      const newUser = {
-        ...data,
-        id: Math.random().toString().substring(2, 6),
-      };
-      const updatedList = [...formData, newUser];
-      setFormData(updatedList);
-      updateUserList(updatedList);
-    }
+    const updatedList = isEditing
+      ? formData.map((u) =>
+          u.id === editingUser.id ? { ...data, id: editingUser.id } : u
+        )
+      : [
+          ...formData,
+          { ...data, id: Math.random().toString().substring(2, 6) },
+        ];
 
+    setFormData(updatedList);
+    updateUserList(updatedList);
+    setEditingUser(defaultValues);
     reset();
   };
 
@@ -68,74 +55,27 @@ export const RHFUserForm = ({
 
   return (
     <>
-      <TextInput
-        name="name"
-        label="Username"
-        control={control}
-        placeholder="Enter your username"
-      />
+      {formFields.map(({ component, maxField, minField, ...field }) => {
+        const FieldComponent = Fields[component];
+        return (
+          <FieldComponent
+            key={field.name}
+            control={control}
+            {...field}
+            {...(maxField && { max: values[maxField] })}
+            {...(minField && { min: values[minField] })}
+          />
+        );
+      })}
 
-      <TextInput
-        name="email"
-        type="email"
-        label="Email"
-        control={control}
-        placeholder="Enter your email"
-      />
-
-      <TextInput
-        max={dod}
-        name="dob"
-        type="date"
-        control={control}
-        label="Date of Birth"
-      />
-
-      <TextInput
-        min={dob}
-        name="dod"
-        type="date"
-        control={control}
-        label="Date of Death"
-      />
-
-      <RadioInput
-        type="radio"
-        name="gender"
-        control={control}
-        arrayName={genders}
-      />
-
-      <CheckboxInput
-        name="hobbies"
-        label="Hobbies"
-        control={control}
-        arrayName={hobbiesList}
-      />
-
-      <DropdownInput
-        control={control}
-        name="programming"
-        arrayName={options}
-        label="Select your Favourite Language"
-      />
-
-      <PasswordInput name="password" control={control} label="Password" />
-
-      <PasswordInput
-        control={control}
-        name="confirmpassword"
-        label="Confirm Password"
-      />
-
-      <ButtonInput
+      <Fields.ButtonInput
         onClick={handleSubmit(onSubmit)}
         label={isEditing ? "Update" : "Submit"}
         className="btn btn-primary flex justify-center gap-2 items-center"
       />
 
       {isEditing && (
-        <ButtonInput
+        <Fields.ButtonInput
           label="Cancel"
           type="button"
           onClick={handleCancel}

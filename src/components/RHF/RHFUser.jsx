@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { RHFUserForm } from "./RHFUserForm";
+import { RHFUserForm } from './RHFUserForm';
 import { RHFUserList } from "./RHFUserList";
 import { defaultValues, getUserList } from "./components";
 
 const RHFUser = () => {
-  const [formData, setFormData] = useState(getUserList("rhf-users"));
   const [activeTab, setActiveTab] = useState("AllUsers");
   const [editingUser, setEditingUser] = useState(defaultValues);
+  const [formData, setFormData] = useState(getUserList("rhf-users"));
 
   const isEditing = editingUser && editingUser.id;
 
